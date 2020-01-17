@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jelly.authuser.dao.AuthRoleDao" >
+    <resultMap id="BaseResultMap" type="com.jelly.authuser.entity.AuthRole" >
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="role_name" property="roleName" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="time_created" property="timeCreated" jdbcType="TIMESTAMP"/>
+        <result column="time_updated" property="timeUpdated" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.jelly.authuser.entity.AuthRole">
+        INSERT INTO auth_role ( role_name)
+        VALUES ( #{roleName,jdbcType=VARCHAR} )
+    </insert>
+
+    <delete id="deleteByRoleName" parameterType="java.lang.String">
+        DELETE FROM auth_role
+        WHERE role_name = #{roleName,jdbcType=VARCHAR}
+    </delete>
+
+    <update id="updateByRoleName" parameterType="java.lang.String">
+        UPDATE auth_role
+        <set>
+            <if test="status != null">
+                status = #{status,jdbcType=TINYINT},
+            </if>
+        </set>
+        WHERE role_name = #{roleName,jdbcType=VARCHAR}
+    </update>
+
+    <select id="selectByName" resultMap="BaseResultMap">
+        SELECT id, role_name, status, time_created, time_updated
+        FROM auth_role
+        WHERE role_name = #{roleName,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT id, role_name, status, time_created, time_updated
+        FROM auth_role
+        LIMIT #{start}, #{size}
+    </select>
+
+</mapper>

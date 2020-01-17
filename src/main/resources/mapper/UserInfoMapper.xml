@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jelly.authuser.dao.AuthUserInfoDao">
+    <resultMap id="BaseResultMap" type="com.jelly.authuser.entity.AuthUserInfo">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="real_name" property="realName" jdbcType="VARCHAR"/>
+        <result column="sex" property="sex" jdbcType="TINYINT"/>
+        <result column="birth" property="birth" jdbcType="TIMESTAMP"/>
+        <result column="avatar_url" property="avatarUrl" jdbcType="VARCHAR"/>
+        <result column="group_id" property="groupId" jdbcType="BIGINT"/>
+        <result column="time_created" property="timeCreated" jdbcType="TIMESTAMP"/>
+        <result column="time_updated" property="timeUpdated" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="User_Info_Columns">
+        <trim suffixOverrides=",">
+            <if test="userId != null">user_id ,</if>
+            <if test="realName != null">real_name ,</if>
+            <if test="sex != null">sex ,</if>
+            <if test="birth != null">birth ,</if>
+            <if test="avatarUrl != null">avatar_url ,</if>
+            <if test="groupId != null">group_id</if>
+        </trim>
+    </sql>
+
+    <sql id="User_Info_Values">
+        <trim suffixOverrides=",">
+            <if test="userId != null">#{userId,jdbcType=BIGINT},</if>
+            <if test="realName != null">#{realName,jdbcType=VARCHAR},</if>
+            <if test="sex != null">#{sex,jdbcType=TINYINT},</if>
+            <if test="birth != null">#{birth,jdbcType=TIMESTAMP},</if>
+            <if test="avatarUrl != null">#{avatarUrl,jdbcType=VARCHAR},</if>
+            <if test="groupId != null">#{groupId,jdbcType=BIGINT}</if>
+        </trim>
+    </sql>
+
+    <insert id="insert" parameterType="com.jelly.authuser.entity.AuthUserInfo">
+        INSERT INTO auth_user_info
+        (<include refid="User_Info_Columns"/>)
+        VALUES
+        (<include refid="User_Info_Values"/>)
+    </insert>
+
+    <update id="updateByUserId" parameterType="com.jelly.authuser.entity.AuthUserInfo">
+        UPDATE auth_user_info
+        <set>
+            <if test="realName != null and realName != null">
+                real_name = #{realName,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null and sex != ''">
+                sex = #{sex,jdbcType=TINYINT},
+            </if>
+            <if test="birth != null and birth != ''">
+                birth = #{birth,jdbcType=TIMESTAMP},
+            </if>
+            <if test="avatarUrl != null and avatarUrl != ''">
+                avatar_url = #{avatarUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="groupId != null and groupId != null">
+                group_id = #{groupId,jdbcType=BIGINT},
+            </if>
+        </set>
+        WHERE user_id = #{userId,jdbcType=BIGINT}
+    </update>
+
+    <select id="selectByUserId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT id, user_id, real_name, sex, birth, avatar_url, group_id, time_created, time_updated
+        FROM auth_user_info
+        WHERE user_id = #{userId,jdbcType=INTEGER}
+    </select>
+
+    <select id="countByUserId" resultType="java.lang.Integer" parameterType="java.lang.Long">
+        SELECT count(1)
+        FROM auth_user_info
+        WHERE user_id = #{userId,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT id, user_id, real_name, sex, birth, avatar_url, group_id, time_created, time_updated
+        FROM auth_user_info
+        INNER JOIN (SELECT id FROM auth_user_info LIMIT #{start}, #{size}) AS b using (id)
+    </select>
+</mapper>

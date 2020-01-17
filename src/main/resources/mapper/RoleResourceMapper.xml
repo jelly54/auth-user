@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jelly.authuser.dao.AuthRoleResourceDao">
+    <resultMap id="BaseResultMap" type="com.jelly.authuser.entity.AuthRoleResource">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="role_id" property="roleId" jdbcType="INTEGER"/>
+        <result column="resource_id" property="resourceId" jdbcType="INTEGER"/>
+        <result column="time_created" property="timeCreated" jdbcType="TIMESTAMP"/>
+        <result column="time_updated" property="timeUpdated" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.jelly.authuser.entity.AuthRoleResource">
+        INSERT INTO auth_role_resource ( role_id, resource_id )
+        VALUES ( #{roleId,jdbcType=INTEGER}, #{resourceId,jdbcType=INTEGER} )
+    </insert>
+
+    <delete id="deleteByUniqueKey" parameterType="com.jelly.authuser.entity.AuthRoleResource">
+        DELETE FROM auth_role_resource
+        WHERE role_id = #{roleId,jdbcType=INTEGER} AND resource_id = #{resourceId,jdbcType=INTEGER}
+    </delete>
+
+</mapper>

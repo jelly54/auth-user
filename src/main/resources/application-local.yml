@@ -1,0 +1,21 @@
+logging:
+  file:
+    name: logs/user-app.log
+  level:
+    root: debug
+    sql: debug
+    web: debug
+    sun: warn
+    org:
+      springframework: info
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/user_service?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
+    username: root
+    password: 123456
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: 123456
+    database: 0

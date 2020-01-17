@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jelly.authuser.dao.AuthResourceDao" >
+    <resultMap id="BaseResultMap" type="com.jelly.authuser.entity.AuthResource" >
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="res_name" property="resName" jdbcType="VARCHAR"/>
+        <result column="res_type" property="resType" jdbcType="TINYINT"/>
+        <result column="parent_id" property="parentId" jdbcType="VARCHAR"/>
+        <result column="url" property="url" jdbcType="VARCHAR"/>
+        <result column="method" property="method" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="time_created" property="timeCreated" jdbcType="TIMESTAMP"/>
+        <result column="time_updated" property="timeUpdated" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, res_name, res_type, parent_id, url, method, status, time_created, time_updated
+    </sql>
+
+    <insert id="insert" parameterType="com.jelly.authuser.entity.AuthResource">
+        INSERT INTO auth_resource
+        (  res_name, res_type, parent_id, url, method )
+        VALUES
+        (  #{resName,jdbcType=VARCHAR}, #{resType,jdbcType=TINYINT},
+        parent_id = #{parentId,jdbcType=INTEGER}, #{url,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR} )
+    </insert>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        DELETE FROM auth_resource
+        WHERE id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <update id="updateByPrimaryKey" parameterType="com.jelly.authuser.entity.AuthResource">
+        UPDATE auth_resource
+        <set>
+            <if test="resName != null">
+                res_name = #{resName,jdbcType=VARCHAR},
+            </if>
+            <if test="resType != null">
+                res_type = #{resType,jdbcType=TINYINT},
+            </if>
+            <if test="parentId != null">
+                parent_id = #{parentId,jdbcType=INTEGER},
+            </if>
+            <if test="url != null">
+                url = #{url,jdbcType=VARCHAR},
+            </if>
+            <if test="method != null">
+                method = #{method,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=TINYINT},
+            </if>
+        </set>
+        WHERE id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <select id="selectUrlRolesRules" resultType="com.jelly.authuser.shiro.rule.UrlRolesRule">
+   		SELECT  CONCAT(ret.url , "==",UCASE(ret.method)) AS url, GROUP_CONCAT(rot.role_name ORDER BY ret.url) AS needRoles
+        FROM auth_resource ret
+        LEFT JOIN auth_role_resource rrt ON ret.id = rrt.resource_id
+        LEFT JOIN auth_role rot ON rrt.role_id = rot.id
+        WHERE ret.res_type = 2 AND ret.status = 0 AND rot.status = 0
+        GROUP BY ret.url, ret.id
+    </select>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM auth_resource
+        WHERE id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectByResourceName" resultMap="BaseResultMap" parameterType="java.lang.String">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM auth_resource
+        WHERE res_name = #{resourceName,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectByParentId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM auth_resource
+        WHERE parent_id = #{parentId,jdbcType=INTEGER} AND res_type = #{resType,jdbcType=TINYINT}
+        LIMIT #{start}, #{size}
+    </select>
+
+    <select id="selectByRoleId" resultMap="BaseResultMap">
+        SELECT
+        rt.id, rt.res_name, rt.res_type, rt.parent_id, rt.url, rt.method, rt.status, rt.time_created, rt.time_updated
+        FROM auth_role_resource rrt
+        JOIN auth_resource rt ON rrt.resource_id = rt.id
+        WHERE rrt.role_id = #{roleId}
+        LIMIT #{start}, #{size}
+    </select>
+
+</mapper>

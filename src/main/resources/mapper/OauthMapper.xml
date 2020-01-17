@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jelly.authuser.dao.AuthOauthDao">
+    <resultMap id="BaseResultMap" type="com.jelly.authuser.entity.AuthOauth">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="oauth_type" property="oauthType" jdbcType="VARCHAR"/>
+        <result column="oauth_id" property="oauthId" jdbcType="VARCHAR"/>
+        <result column="union_id" property="unionId" jdbcType="VARCHAR"/>
+        <result column="credential" property="credential" jdbcType="VARCHAR"/>
+        <result column="refresh_token" property="refreshToken" jdbcType="VARCHAR"/>
+        <result column="time_created" property="timeCreated" jdbcType="TIMESTAMP"/>
+        <result column="time_updated" property="timeUpdated" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_id, oauth_type, oauth_id, union_id, credential, refresh_token, time_created, time_updated
+    </sql>
+
+    <sql id="Oauth_Columns">
+        <trim suffixOverrides=",">
+            <if test="userId != null">user_id ,</if>
+            <if test="oauthType != null">oauth_type ,</if>
+            <if test="oauthId != null">oauth_id ,</if>
+            <if test="unionId != null">union_id ,</if>
+            <if test="credential != null">credential ,</if>
+            <if test="refreshToken != null">refresh_token</if>
+        </trim>
+    </sql>
+    <sql id="Oauth_Values">
+        <trim suffixOverrides=",">
+            <if test="userId != null">#{userId,jdbcType=BIGINT},</if>
+            <if test="oauthType != null">#{oauthType,jdbcType=VARCHAR},</if>
+            <if test="oauthId != null">#{oauthId,jdbcType=VARCHAR},</if>
+            <if test="unionId != null">#{unionId,jdbcType=VARCHAR},</if>
+            <if test="credential != null">#{credential,jdbcType=VARCHAR},</if>
+            <if test="refreshToken != null">#{refreshToken,jdbcType=VARCHAR}</if>
+        </trim>
+    </sql>
+
+    <insert id="insert" parameterType="com.jelly.authuser.entity.AuthOauth">
+        INSERT INTO auth_oauth
+        (<include refid="Oauth_Columns"/>)
+        VALUES
+        (<include refid="Oauth_Values"/>)
+    </insert>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        DELETE FROM auth_oauth
+        WHERE id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <update id="updateByUserId" parameterType="com.jelly.authuser.entity.AuthOauth">
+        UPDATE auth_oauth
+        <set>
+            <trim suffixOverrides=",">
+                <if test="oauthType != null and oauthType != ''">
+                    oauth_type = #{oauthType,jdbcType=VARCHAR},
+                </if>
+                <if test="unionId != null and unionId != ''">
+                    union_id = #{unionId,jdbcType=VARCHAR},
+                </if>
+                <if test="credential != null and credential != ''">
+                    credential = #{credential,jdbcType=VARCHAR},
+                </if>
+                <if test="refreshToken != null and refreshToken != ''">
+                    refresh_token = #{refreshToken,jdbcType=VARCHAR},
+                </if>
+            </trim>
+        </set>
+        WHERE user_id = #{userId,jdbcType=BIGINT}
+    </update>
+
+    <select id="selectByUserId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM auth_oauth
+        WHERE user_id = #{userId,jdbcType=BIGINT}
+    </select>
+
+    <select id="countByUserId" resultType="java.lang.Integer" parameterType="java.lang.Long">
+        SELECT count(1)
+        FROM auth_oauth
+        WHERE user_id = #{userId,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM auth_oauth
+        INNER JOIN (SELECT id FROM auth_oauth LIMIT #{start}, #{size}) AS b using (id)
+    </select>
+</mapper>

@@ -1,0 +1,32 @@
+auth-user:
+  id-worker:
+    data-center-id: 1
+    machine-id: 1
+shiro:
+  realm:
+    hash-iterations: 3
+  login:
+    token-timeout: 18000
+    jwt-timeout: 864000
+
+server:
+  port: 9012
+
+spring:
+  application:
+    name: user-service
+  cache:
+    type: redis
+  profiles:
+    active: local
+  redis:
+    timeout: 3000
+    jedis:
+      pool:
+        max-active: 80
+        max-wait: 1000
+        min-idle: 2
+        max-idle: 20
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml

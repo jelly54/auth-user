@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jelly.authuser.dao.AuthUserDao">
+    <resultMap id="BaseResultMap" type="com.jelly.authuser.entity.AuthUser">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="username" property="username" jdbcType="VARCHAR"/>
+        <result column="slat_password" property="slatPassword" jdbcType="VARCHAR"/>
+        <result column="salt" property="salt" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="mail" property="mail" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="time_created" property="timeCreated" jdbcType="TIMESTAMP"/>
+        <result column="time_updated" property="timeUpdated" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, username, slat_password, salt, phone, mail, status, time_created, time_updated
+    </sql>
+
+    <sql id="User_Columns">
+        <trim suffixOverrides=",">
+            <if test="id != null">id ,</if>
+            <if test="username != null">username ,</if>
+            <if test="slatPassword != null">slat_password ,</if>
+            <if test="salt != null">salt ,</if>
+            <if test="phone != null">phone ,</if>
+            <if test="mail != null">mail</if>
+        </trim>
+    </sql>
+    <sql id="User_Values">
+        <trim suffixOverrides=",">
+            <if test="id != null">#{id,jdbcType=BIGINT},</if>
+            <if test="username != null">#{username,jdbcType=VARCHAR},</if>
+            <if test="slatPassword != null">#{slatPassword,jdbcType=VARCHAR},</if>
+            <if test="salt != null">#{salt,jdbcType=VARCHAR},</if>
+            <if test="phone != null">#{phone,jdbcType=VARCHAR},</if>
+            <if test="mail != null">#{mail,jdbcType=VARCHAR}</if>
+        </trim>
+    </sql>
+
+    <insert id="insert" parameterType="com.jelly.authuser.entity.AuthUser">
+        INSERT INTO auth_user
+        (<include refid="User_Columns"/>)
+        VALUES
+        (<include refid="User_Values"/>)
+    </insert>
+
+    <update id="updateByPrimaryKey" parameterType="com.jelly.authuser.entity.AuthUser">
+        UPDATE auth_user
+        <set>
+            <trim suffixOverrides=",">
+                <if test="username != null and username != ''">
+                    username = #{username,jdbcType=VARCHAR},
+                </if>
+                <if test="slatPassword != null and slatPassword != ''">
+                    slat_password = #{slatPassword,jdbcType=VARCHAR},
+                    salt = #{salt,jdbcType=VARCHAR},
+                </if>
+                <if test="phone != null and phone != ''">
+                    phone = #{phone,jdbcType=VARCHAR},
+                </if>
+                <if test="mail != null and mail != ''">
+                    mail = #{mail,jdbcType=VARCHAR},
+                </if>
+                <if test="status != null and status != ''">
+                    status = #{status,jdbcType=TINYINT},
+                </if>
+            </trim>
+        </set>
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM auth_user
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="selectByUsername" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM auth_user
+        WHERE username = #{username,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectByPhone" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM auth_user
+        WHERE phone = #{phone,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectByRoleId" resultMap="BaseResultMap">
+        SELECT
+        ut.id AS id, ut.username AS username, ut.slat_password AS slat_password, ut.salt AS salt, ut.phone AS phone,
+        ut.mail AS mail, ut.status AS status, ut.time_created AS time_created, ut.time_updated AS time_updated
+        FROM auth_user_role urt
+        JOIN auth_user ut ON urt.user_id = ut.id
+        WHERE urt.role_id = #{roleId}
+        LIMIT #{start}, #{size}
+    </select>
+
+    <select id="selectByGroupId" resultMap="BaseResultMap">
+        SELECT
+        ut.id AS id, ut.username AS username, ut.slat_password AS slat_password, ut.salt AS salt, ut.phone AS phone,
+        ut.mail AS mail, ut.status AS status, ut.time_created AS time_created, ut.time_updated AS time_updated
+        FROM auth_group gt
+        LEFT JOIN auth_user_info uit ON gt.id = uit.group_id
+        LEFT JOIN auth_user ut ON ut.id = uit.user_id
+        WHERE uit.group_id = #{groupId}
+        LIMIT #{start}, #{size}
+    </select>
+
+    <select id="selectUserIdByAppId" resultType="java.lang.Long" parameterType="java.lang.String">
+        SELECT
+        id
+        FROM auth_user ut
+        <trim prefix="WHERE" prefixOverrides="AND |OR">
+            <choose>
+                <when test="username != null and username != ''">
+                    AND username = #{username,jdbcType=VARCHAR}
+                </when>
+                <when test="phone != null and phone != ''">
+                    AND phone = #{phone,jdbcType=VARCHAR}
+                </when>
+                <when test="mail != null and mail != ''">
+                    AND mail = #{mail,jdbcType=VARCHAR}
+                </when>
+                <otherwise>
+                    AND 1=2
+                </otherwise>
+            </choose>
+        </trim>
+    </select>
+
+    <select id="selectUserRolesByUserId" resultType="java.lang.String" parameterType="java.lang.Long">
+        SELECT rt.role_name
+        FROM auth_role rt
+        LEFT JOIN auth_user_role urt ON rt.id = urt.role_id
+        WHERE urt.user_id =  #{userId,jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM auth_user
+        INNER JOIN (SELECT id FROM auth_user LIMIT #{start}, #{size}) AS b using (id)
+    </select>
+
+</mapper>
